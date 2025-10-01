@@ -1,0 +1,12 @@
+<button
+  id="room-tile-{{ r.id }}"
+  class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
+         flex items-center justify-center shadow-sm border transition-transform hover:scale-[1.02]
+         ring-2 ring-transparent
+         {% if r.status == 'OCCUPIED' %}bg-green-500 border-green-600{% else %}bg-red-500 border-red-600{% endif %}"
+  hx-get="{% url 'room_detail_partial' r.id %}"
+  hx-target="#room-detail"
+  hx-swap="innerHTML"
+  title="ห้อง {{ r.room_number }}">
+  {{ r.room_number|default:"—" }}
+</button>

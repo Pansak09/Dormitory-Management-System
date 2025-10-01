@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}เพิ่มหลายห้อง – {{ dorm.name }}{% endblock %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+  <!-- หัวข้อ -->
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl font-bold text-gray-800">เพิ่มหลายห้อง</h1>
+    <p class="text-gray-500">หอพัก: {{ dorm.name }}</p>
+  </div>
+
+  <!-- การ์ดฟอร์ม -->
+  <div class="bg-white shadow-lg rounded-2xl p-8">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      {{ form.dorm }}
+
+      {% if form.non_field_errors %}
+        <div class="rounded bg-red-50 text-red-700 px-4 py-3 text-sm">
+          {{ form.non_field_errors.0 }}
+        </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">เริ่มจากเลขห้อง</label>
+          {{ form.start_number }}
+          {% if form.start_number.errors %}<p class="text-red-600 text-sm mt-1">{{ form.start_number.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนห้องที่จะสร้าง</label>
+          {{ form.count }}
+          {% if form.count.errors %}<p class="text-red-600 text-sm mt-1">{{ form.count.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนหลัก (padding)</label>
+          {{ form.digits }}
+          {% if form.digits.errors %}<p class="text-red-600 text-sm mt-1">{{ form.digits.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">ชั้น</label>
+          {{ form.floor }}
+          {% if form.floor.errors %}<p class="text-red-600 text-sm mt-1">{{ form.floor.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">ราคา/เดือน (บาท)</label>
+          {{ form.price_per_month }}
+          {% if form.price_per_month.errors %}<p class="text-red-600 text-sm mt-1">{{ form.price_per_month.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">สถานะเริ่มต้น</label>
+          {{ form.status }}
+          {% if form.status.errors %}<p class="text-red-600 text-sm mt-1">{{ form.status.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button type="submit"
+          class="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-medium shadow hover:bg-blue-700 transition">
+          สร้างห้อง
+        </button>
+        <a href="{% url 'dorm_detail' dorm.id %}"
+          class="px-4 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium shadow hover:bg-gray-50 transition">
+          ยกเลิก
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <div class="mt-6 bg-gray-50 border rounded-xl p-4 text-sm text-gray-600">
+    <p class="font-semibold mb-1">📌 ตัวอย่าง:</p>
+    <p>เริ่มจากเลขห้อง = 1, จำนวนห้อง = 5, จำนวนหลัก = 3 → จะได้ 001, 002, 003, 004, 005</p>
+  </div>
+</div>
+
+{% endblock %}

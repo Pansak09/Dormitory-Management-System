@@ -1,0 +1,115 @@
+{# templates/rooms/_edit_form.html #}
+<form
+  hx-post="{% url 'room_edit' r.id %}"
+  hx-target="#room-detail"
+  hx-swap="innerHTML"
+  class="space-y-4"
+>
+  {% csrf_token %}
+  {{ form.dorm }} {# Hidden dorm #}
+
+  {% if form.non_field_errors %}
+    <div class="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">
+      {{ form.non_field_errors.0 }}
+    </div>
+  {% endif %}
+
+  <!-- เลขห้อง -->
+  <div>
+    <label class="block text-sm mb-1">เลขห้อง</label>
+    {{ form.room_number }}
+    {% if form.room_number.errors %}
+      <p class="text-red-600 text-sm mt-1">{{ form.room_number.errors.0 }}</p>
+    {% endif %}
+  </div>
+
+  <!-- ชั้น / ราคา / สถานะ -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div>
+      <label class="block text-sm mb-1">ชั้น</label>
+      {{ form.floor }}
+      {% if form.floor.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.floor.errors.0 }}</p>
+      {% endif %}
+    </div>
+    <div>
+      <label class="block text-sm mb-1">ราคา/เดือน</label>
+      {{ form.price_per_month }}
+      {% if form.price_per_month.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.price_per_month.errors.0 }}</p>
+      {% endif %}
+    </div>
+    <div>
+      <label class="block text-sm mb-1">สถานะ</label>
+      {{ form.status }}
+      {% if form.status.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.status.errors.0 }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ผู้เช่า -->
+  <div>
+    <label class="block text-sm font-semibold mb-1">ข้อมูลผู้เช่า</label>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm mb-1">ชื่อผู้เช่า</label>
+        {{ form.tenant_name }}
+        {% if form.tenant_name.errors %}
+          <p class="text-red-600 text-sm mt-1">{{ form.tenant_name.errors.0 }}</p>
+        {% endif %}
+      </div>
+      <div>
+        <label class="block text-sm mb-1">เบอร์โทร</label>
+        {{ form.tenant_phone }}
+        {% if form.tenant_phone.errors %}
+          <p class="text-red-600 text-sm mt-1">{{ form.tenant_phone.errors.0 }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="mt-2">
+      <label class="block text-sm mb-1">ที่อยู่</label>
+      {{ form.tenant_address }}
+      {% if form.tenant_address.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.tenant_address.errors.0 }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- วันที่จอง / วันเข้าอยู่ -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm mb-1">วันที่จอง</label>
+      {{ form.booking_date }}
+      {% if form.booking_date.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.booking_date.errors.0 }}</p>
+      {% endif %}
+      <p class="text-xs text-gray-500 mt-1">รูปแบบ YYYY-MM-DD</p>
+    </div>
+    <div>
+      <label class="block text-sm mb-1">วันเข้าอยู่</label>
+      {{ form.move_in_date }}
+      {% if form.move_in_date.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.move_in_date.errors.0 }}</p>
+      {% endif %}
+      <p class="text-xs text-gray-500 mt-1">รูปแบบ YYYY-MM-DD</p>
+    </div>
+  </div>
+
+  <!-- ปุ่ม -->
+  <div class="flex gap-2 pt-2">
+    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      บันทึก
+    </button>
+    <a
+      hx-get="{% url 'room_detail_partial' r.id %}"
+      hx-target="#room-detail"
+      hx-swap="innerHTML"
+      class="px-4 py-2 border rounded hover:bg-gray-50 cursor-pointer"
+    >
+      ยกเลิก
+    </a>
+  </div>
+</form>

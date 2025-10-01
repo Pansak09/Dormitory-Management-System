@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}ลบห้อง {{ r.room_number }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-red-600 mb-4">ลบห้องพัก</h1>
+
+<p class="mb-6">
+  คุณแน่ใจหรือไม่ว่าต้องการลบ <strong>ห้อง {{ r.room_number }}</strong> ?
+  การลบนี้ไม่สามารถย้อนกลับได้
+</p>
+
+<form method="post" class="flex gap-3">
+  {% csrf_token %}
+  <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">
+    ยืนยันลบ
+  </button>
+  <a href="{% url 'dorm_detail' r.dorm_id %}" class="px-4 py-2 border rounded">
+    ยกเลิก
+  </a>
+</form>
+{% endblock %}

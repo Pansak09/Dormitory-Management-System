@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static socialaccount %}
+{% block title %}เข้าสู่ระบบ{% endblock %}
+{% block content %}
+
+<!-- Layout: ซ้าย = ภาพพื้นหลัง, ขวา = ฟอร์ม -->
+<div class="min-h-[85vh] w-full flex">
+
+  <!-- พื้นหลังรูปภาพด้านซ้าย (ซ่อนบนจอเล็ก) -->
+  <div class="hidden md:block flex-1 relative">
+    <div class="absolute inset-0 bg-cover bg-center"
+         style="background-image: url('{% static "images/login.jpg" %}');"></div>
+    <div class="absolute inset-0 bg-black/45"></div>
+  </div>
+
+  <!-- กล่องฟอร์มด้านขวา -->
+  <div class="w-full md:max-w-md bg-white/90 backdrop-blur ring-1 ring-black/5 shadow-2xl">
+    <div class="px-8 py-10">
+      <!-- โลโก้/หัวเรื่อง -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white grid place-items-center font-bold shadow">
+          D
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dormitory System</h1>
+          <p class="text-sm text-gray-500">ยินดีต้อนรับ • เข้าสู่ระบบเพื่อจัดการหอพัก</p>
+        </div>
+      </div>
+
+      <!-- ฟอร์มล็อกอิน -->
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="rounded-xl bg-red-50 text-red-700 px-4 py-3 text-sm">
+            {{ form.non_field_errors.0 }}
+          </div>
+        {% endif %}
+
+        <!-- Username -->
+        <div>
+          <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+          <div class="relative">
+            <input
+              id="id_username"
+              type="text"
+              name="username"
+              value="{{ form.username.value|default_if_none:'' }}"
+              autocomplete="username"
+              class="w-full rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 shadow-sm"
+              placeholder="เช่น admin001" required />
+            <svg class="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 12c2.761 0 5-2.239 5-5S14.761 2 12 2 7 4.239 7 7s2.239 5 5 5Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M20 22a8 8 0 1 0-16 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          {% if form.username.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+        <div class="relative">
+            <input
+              id="password-input"
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              class="w-full rounded-xl border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 shadow-sm pr-11"
+              placeholder="••••••••" required />
+            <button type="button" id="toggle-password"
+              class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-gray-500 hover:text-gray-700 focus:outline-none"
+              aria-label="สลับการแสดงรหัสผ่าน">
+              <svg id="eye" class="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </button>
+          </div>
+          {% if form.password.errors %}
+            <p class="text-red-600 text-sm mt-1">{{ form.password.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- remember + forgot -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="inline-flex items-center gap-2 text-gray-600">
+            <input type="checkbox" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+            จดจำฉันไว้ในระบบ
+          </label>
+          <a class="inline-block px-1 text-indigo-600 hover:text-indigo-700 hover:underline"
+             href="{% url 'password_reset' %}">
+            ลืมรหัสผ่าน?
+          </a>
+        </div>
+
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <!-- ปุ่มเข้าสู่ระบบ -->
+        <button
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-medium py-2.5 shadow hover:bg-indigo-700 transition">
+          เข้าสู่ระบบ
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M14 5l7 7-7 7M21 12H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- แบ่งเส้น -->
+      <div class="my-6 flex items-center gap-4 text-gray-400">
+        <div class="h-px bg-gray-200 flex-1"></div>
+        <span class="text-xs">หรือ</span>
+        <div class="h-px bg-gray-200 flex-1"></div>
+      </div>
+
+      {# ปุ่มล็อกอินด้วย Google — แสดงเมื่อ provider ถูกตั้งค่าและผูกกับ Site แล้วเท่านั้น #}
+      {% get_providers as social_providers %}
+      {% if social_providers %}
+        {% for p in social_providers %}
+          {% if p.id == 'google' %}
+            <a href="{% provider_login_url 'google' %}"
+               class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 48 48" aria-hidden="true">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12 s5.373-12,12-12c3.059,0,5.842,1.153,7.957,3.043l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24 s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.64,16.152,18.961,13,24,13c3.059,0,5.842,1.153,7.957,3.043l5.657-5.657 C34.046,6.053,29.268,4,24,4C16.318,4,9.705,8.337,6.306,14.691z"/>
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.141,35.091,26.715,36,24,36 c-5.202,0-9.619-3.317-11.281-7.952l-6.553,5.047C9.568,39.556,16.227,44,24,44z"/>
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.794,2.239-2.291,4.166-4.19,5.571l0.003-0.002l6.19,5.238 C36.861,39.963,44,36,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+              </svg>
+              ล็อกอินด้วย Google
+            </a>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+      <!-- ปุ่มสมัครสมาชิก -->
+      <a href="{% url 'signup' %}"
+         class="mt-3 w-full block text-center rounded-xl border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50">
+        สมัครสมาชิกใหม่
+      </a>
+
+      <p class="text-gray-400 text-xs text-center mt-6">© {% now "Y" %} Dormitory Management System</p>
+    </div>
+  </div>
+</div>
+
+<!-- toggle password -->
+<script>
+  const btn = document.getElementById('toggle-password');
+  const input = document.getElementById('password-input');
+  btn?.addEventListener('click', () => {
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    const eye = btn.querySelector('#eye');
+    if (eye) eye.style.opacity = show ? .75 : 1;
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}แก้ไขห้อง {{ r.room_number }}{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">แก้ไขห้อง {{ r.room_number }}</h1>
+<form method="post" class="space-y-3">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="flex gap-2">
+    <button class="px-4 py-2 bg-blue-600 text-white rounded">บันทึก</button>
+    <a href="{% url 'dorm_detail' r.dorm_id %}" class="px-4 py-2 border rounded">ยกเลิก</a>
+    <a href="{% url 'room_delete' r.id %}" class="ml-auto px-4 py-2 bg-red-600 text-white rounded">
+      ลบห้อง
+  </div>
+</form>
+{% endblock %}

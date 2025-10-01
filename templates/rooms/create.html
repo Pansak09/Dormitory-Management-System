@@ -1,0 +1,85 @@
+{# templates/rooms/create.html #}
+{% extends "base.html" %}
+{% block title %}เพิ่มห้องพัก{% endblock %}
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-4">
+  เพิ่มห้องพัก{% if dorm %} • {{ dorm.name }}{% endif %}
+</h1>
+
+<form method="post" class="space-y-4">
+  {% csrf_token %}
+  {{ form.dorm }} {# ซ่อนรหัสหอ #}
+
+  {% if form.non_field_errors %}
+    <div class="rounded bg-red-50 text-red-700 px-4 py-3 text-sm">
+      {{ form.non_field_errors.0 }}
+    </div>
+  {% endif %}
+
+  <div>
+    <label class="block text-sm mb-1">{{ form.room_number.label }}</label>
+    {{ form.room_number }}
+    {% if form.room_number.errors %}<p class="text-red-600 text-sm">{{ form.room_number.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div>
+      <label class="block text-sm mb-1">{{ form.floor.label }}</label>
+      {{ form.floor }}
+      {% if form.floor.errors %}<p class="text-red-600 text-sm">{{ form.floor.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="block text-sm mb-1">{{ form.price_per_month.label }}</label>
+      {{ form.price_per_month }}
+      {% if form.price_per_month.errors %}<p class="text-red-600 text-sm">{{ form.price_per_month.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="block text-sm mb-1">{{ form.status.label }}</label>
+      {{ form.status }}
+      {% if form.status.errors %}<p class="text-red-600 text-sm">{{ form.status.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div>
+    <p class="block text-sm font-semibold mb-2">ข้อมูลผู้เช่า (ถ้ามี)</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <label class="block text-sm mb-1">{{ form.tenant_name.label }}</label>
+        {{ form.tenant_name }}
+      </div>
+      <div>
+        <label class="block text-sm mb-1">{{ form.tenant_phone.label }}</label>
+        {{ form.tenant_phone }}
+      </div>
+    </div>
+    <div class="mt-2">
+      <label class="block text-sm mb-1">{{ form.tenant_address.label }}</label>
+      {{ form.tenant_address }}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div>
+      <label class="block text-sm mb-1">{{ form.booking_date.label }}</label>
+      {{ form.booking_date }}
+      {% if form.booking_date.help_text %}<p class="text-xs text-gray-500">{{ form.booking_date.help_text }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="block text-sm mb-1">{{ form.move_in_date.label }}</label>
+      {{ form.move_in_date }}
+      {% if form.move_in_date.help_text %}<p class="text-xs text-gray-500">{{ form.move_in_date.help_text }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="flex gap-2 pt-2">
+    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">บันทึก</button>
+    {% if dorm %}
+      <a href="{% url 'dorm_detail' dorm.id %}" class="px-4 py-2 border rounded hover:bg-gray-50">ยกเลิก</a>
+    {% else %}
+      <a href="{% url 'dorm_list' %}" class="px-4 py-2 border rounded hover:bg-gray-50">ยกเลิก</a>
+    {% endif %}
+  </div>
+</form>
+
+{% endblock %}

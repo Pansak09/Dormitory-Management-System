@@ -1,0 +1,87 @@
+{# แผงรายละเอียดห้อง; ใช้ทั้งโหมด staff และ public #}
+
+{% if request.user.is_staff or request.user.is_superuser %}
+  {# -------- โหมด Staff/Superuser: เห็นรายละเอียดเต็ม + ปุ่มจัดการ -------- #}
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">ห้อง {{ r.room_number }}</h3>
+      <span class="text-xs px-2 py-1 rounded-full
+        {% if r.status == 'OCCUPIED' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+        {% if r.status == 'OCCUPIED' %}จองแล้ว{% else %}ยังไม่จอง{% endif %}
+      </span>
+    </div>
+
+    <dl class="grid grid-cols-2 gap-y-2 text-sm">
+      <dt class="text-gray-500">ชั้น</dt><dd>{{ r.floor }}</dd>
+      <dt class="text-gray-500">ราคา/เดือน</dt><dd>{{ r.price_per_month }} บาท</dd>
+      <dt class="text-gray-500">วันที่จอง</dt><dd>{{ r.booking_date|date:"Y-m-d"|default:"-" }}</dd>
+      <dt class="text-gray-500">วันเข้าอยู่</dt><dd>{{ r.move_in_date|date:"Y-m-d"|default:"-" }}</dd>
+    </dl>
+
+    <div class="text-sm">
+      <p class="font-semibold mb-1">ข้อมูลผู้เช่า</p>
+      {% if r.status == 'OCCUPIED' %}
+        <p>ชื่อ: {{ r.tenant_name|default:"-" }}</p>
+        <p>ที่อยู่: {{ r.tenant_address|default:"-" }}</p>
+        <p>เบอร์โทร: {{ r.tenant_phone|default:"-" }}</p>
+      {% else %}
+        <p class="text-gray-500">ยังไม่มีผู้เช่า</p>
+      {% endif %}
+    </div>
+
+    <div class="pt-2 flex flex-wrap gap-2">
+      <a class="px-3 py-2 border rounded-xl hover:bg-gray-50"
+         hx-get="{% url 'room_edit' r.id %}"
+         hx-target="#room-detail" hx-swap="innerHTML">แก้ไขห้อง</a>
+
+      {% if r.status == 'OCCUPIED' %}
+        <form hx-post="{% url 'set_room_status' r.id %}?status=VACANT"
+              hx-target="#room-detail" hx-swap="innerHTML">
+          {% csrf_token %}
+          <button class="px-3 py-2 rounded-xl bg-yellow-500 text-white">ปลดการจอง</button>
+        </form>
+      {% else %}
+        <form hx-post="{% url 'set_room_status' r.id %}?status=OCCUPIED"
+              hx-target="#room-detail" hx-swap="innerHTML">
+          {% csrf_token %}
+          <button class="px-3 py-2 rounded-xl bg-green-600 text-white">ทำเครื่องหมายว่าจองแล้ว</button>
+        </form>
+      {% endif %}
+
+      <form hx-post="{% url 'room_delete' r.id %}"
+            hx-confirm="ยืนยันลบห้อง {{ r.room_number }} ? การลบนี้ไม่สามารถย้อนกลับได้"
+            class="inline">
+        {% csrf_token %}
+        <button class="px-3 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700">ลบห้อง</button>
+      </form>
+    </div>
+  </div>
+
+  {# อัปเดตการ์ดในกริด (OOB) ให้เปลี่ยนสีตรงตามสถานะ #}
+  <button
+    id="room-tile-{{ r.id }}"
+    hx-swap-oob="true"
+    class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
+           flex items-center justify-center shadow-sm border transition-transform hover:scale-[1.02]
+           ring-2 ring-transparent
+           {% if r.status == 'OCCUPIED' %}bg-green-500 border-green-600{% else %}bg-red-500 border-red-600{% endif %}"
+    hx-get="{% url 'room_detail_partial' r.id %}"
+    hx-target="#room-detail"
+    hx-swap="innerHTML"
+    title="ห้อง {{ r.room_number }}">
+    {{ r.room_number|default:"—" }}
+  </button>
+
+{% else %}
+  {# -------- โหมด Public: เห็นเฉพาะสถานะ -------- #}
+  <div class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold">ห้อง {{ r.room_number }}</h3>
+      <span class="text-xs px-2 py-1 rounded-full
+        {% if r.status == 'OCCUPIED' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+        {% if r.status == 'OCCUPIED' %}จองแล้ว{% else %}ยังไม่จอง{% endif %}
+      </span>
+    </div>
+    <p class="text-gray-500 text-sm">* ผู้ใช้ทั่วไปสามารถดูได้เฉพาะสถานะของห้อง</p>
+  </div>
+{% endif %}

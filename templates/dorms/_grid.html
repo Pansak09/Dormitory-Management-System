@@ -1,0 +1,7 @@
+<div class="grid grid-cols-4 gap-6">
+  {% for d in dorms %}
+    {% include "dorms/_card.html" with d=d %}
+  {% empty %}
+    <p>ยังไม่มีหอ</p>
+  {% endfor %}
+</div>

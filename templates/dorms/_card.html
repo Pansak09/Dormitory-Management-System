@@ -1,0 +1,15 @@
+<a id="dorm-{{ d.id }}" href="{% url 'dorm_detail' d.id %}"
+   class="block rounded-xl shadow bg-white p-6 hover:ring-2 hover:ring-blue-400 transition">
+
+  {% if d.image %}
+    <img src="{{ d.image.url }}" alt="รูป {{ d.name }}"
+         class="h-24 w-full object-cover rounded-lg mb-4">
+  {% else %}
+    <div class="h-24 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-gray-500 text-sm">
+      ไม่มีรูปภาพ
+    </div>
+  {% endif %}
+
+  <div class="font-semibold">{{ d.name }}</div>
+  <div class="text-sm text-gray-500 truncate">{{ d.address|default:"-" }}</div>
+</a>

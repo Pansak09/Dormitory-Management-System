@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}เพิ่มหอใหม่{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">เพิ่มหอใหม่</h1>
+
+<form method="post" enctype="multipart/form-data" class="space-y-4">  {# <= เพิ่ม enctype #}
+  {% csrf_token %}
+  <div>
+    <label class="block text-sm mb-1">ชื่อหอ</label>
+    {{ form.name }}{% if form.name.errors %}<p class="text-red-600 text-sm">{{ form.name.errors.0 }}</p>{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm mb-1">ที่อยู่</label>
+    {{ form.address }}{% if form.address.errors %}<p class="text-red-600 text-sm">{{ form.address.errors.0 }}</p>{% endif %}
+  </div>
+  <div>
+    <label class="block text-sm mb-1">จำนวนห้องสูงสุด</label>
+    {{ form.max_rooms }}{% if form.max_rooms.errors %}<p class="text-red-600 text-sm">{{ form.max_rooms.errors.0 }}</p>{% endif %}
+  </div>
+
+  <!-- อัปโหลดรูปหอ -->
+  <div>
+    <label class="block text-sm mb-1">รูปภาพหอ (ไม่บังคับ)</label>
+    {{ form.image }}{% if form.image.errors %}<p class="text-red-600 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
+    <p class="text-xs text-gray-500 mt-1">รองรับ JPG/PNG ขนาดไฟล์แนะนำ &lt; 2MB</p>
+  </div>
+
+  <div class="flex gap-2 mt-4">
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">บันทึก</button>
+    <a href="{% url 'dorm_list' %}" class="px-4 py-2 border rounded">ยกเลิก</a>
+  </div>
+</form>
+{% endblock %}

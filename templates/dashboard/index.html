@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="w-full h-screen overflow-auto px-4 py-6 bg-gray-50">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-2xl font-bold">Dashboard</h1>
+        <p class="text-sm text-gray-500">
+          {% if current_dorm %}
+            หอ: <span class="font-medium">{{ current_dorm.name }}</span>
+          {% else %}
+            ทุกหอ
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- ฟอร์มเลือกหอ -->
+      <form method="get" class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">เลือกหอ:</label>
+        <select name="dorm" class="border rounded-lg px-3 py-2">
+          <option value="">ทุกหอ</option>
+          {% for d in all_dorms %}
+            <option value="{{ d.id }}" {% if current_dorm and d.id == current_dorm.id %}selected{% endif %}>
+              {{ d.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <button class="px-3 py-2 rounded-lg bg-indigo-600 text-white">ดูข้อมูล</button>
+      </form>
+    </div>
+
+    <!-- การ์ดสรุป -->
+    <div 
+      id="dash-counters"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">จำนวนหอพัก (ทั้งหมด)</p>
+        <p class="text-3xl font-bold">{{ total_dorms }}</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">จำนวนห้อง (ตามที่เลือก)</p>
+        <p class="text-3xl font-bold">{{ total_rooms }}</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-5">
+        <p class="text-sm text-gray-500">สถานะห้อง</p>
+        <p class="text-lg font-medium text-gray-700">
+          <span class="text-emerald-600 font-bold">{{ count_vacant }}</span> ว่าง /
+          <span class="text-indigo-600 font-bold">{{ count_occupied }}</span> เข้าอยู่
+        </p>
+      </div>
+    </div>
+  
+    <!-- กราฟ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- สถานะห้อง -->
+      <div class="bg-white rounded-xl shadow p-5 h-[350px]">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">สถานะห้อง</h2>
+        </div>
+        <canvas id="statusChart" class="w-full h-[250px]"></canvas>
+        <div class="mt-3 text-sm text-gray-500">
+          ว่าง: {{ count_vacant }} | เข้าอยู่: {{ count_occupied }}
+        </div>
+      </div>
+
+      <!-- Top 10 -->
+      <div class="bg-white rounded-xl shadow p-5 h-[350px]">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="font-semibold">จำนวนห้องต่อหอ (Top 10)</h2>
+        </div>
+        <canvas id="byDormChart" class="w-full h-full"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const byDormLabels = {{ by_dorm_labels|safe }};
+  const byDormCounts = {{ by_dorm_counts|safe }};
+
+  // สถานะห้อง
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['ห้องว่าง','เข้าอยู่'],
+      datasets: [{
+        data: [{{ count_vacant }}, {{ count_occupied|default:0 }}],
+        backgroundColor: ['#10B981','#6366F1']
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Top 10
+  new Chart(document.getElementById('byDormChart'), {
+    type: 'bar',
+    data: { 
+      labels: byDormLabels, 
+      datasets: [{ 
+        label: 'จำนวนห้อง', 
+        data: byDormCounts, 
+        backgroundColor: '#6366F1' 
+      }] 
+    },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+  });
+</script>
+
+{% endblock %}
