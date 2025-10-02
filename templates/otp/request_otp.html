@@ -4,11 +4,12 @@
 <head>
   <meta charset="utf-8">
   <script src="https://cdn.tailwindcss.com"></script>
+  <title>ขอรหัส OTP</title>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-white via-purple-50 to-white flex items-center justify-center p-6">
-  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl ring-1 ring-violet-200 p-6">
-    <h1 class="text-2xl font-bold text-slate-900 text-center">รีเซ็ตรหัสผ่าน</h1>
-    <p class="text-sm text-slate-600 text-center mt-1">กรอกอีเมลเพื่อรับลิงก์รีเซ็ตรหัสผ่าน</p>
+<body class="min-h-screen bg-gradient-to-b from-white via-[#F6F4FF] to-white flex items-center justify-center p-6">
+  <div class="w-full max-w-md bg-white/80 backdrop-blur rounded-2xl shadow-xl ring-1 ring-violet-200 p-6">
+    <h1 class="text-2xl font-bold text-slate-900 text-center">ขอรหัส OTP</h1>
+    <p class="text-sm text-slate-600 text-center mt-1">กรอกอีเมลที่ลงทะเบียนไว้ เพื่อรับรหัส OTP 6 หลัก</p>
 
     {% if messages %}
       <div class="mt-4 space-y-2">
@@ -28,13 +29,11 @@
                class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-2 focus:ring-2 focus:ring-violet-300 focus:outline-none"
                placeholder="name@example.com">
       </div>
-
       <button type="submit"
-              class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-violet-600 to-indigo-500 shadow-md hover:shadow-lg">
-        ส่งลิงก์รีเซ็ตรหัสผ่าน
+              class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#3F2B96] to-[#5B49C9] shadow-md hover:shadow-lg">
+        ส่งรหัส OTP
       </button>
-
-      <div class="text-center text-sm">
+      <div class="text-center text-sm mt-2">
         <a href="{% url 'login' %}" class="text-violet-700 hover:underline">กลับไปหน้าเข้าสู่ระบบ</a>
       </div>
     </form>

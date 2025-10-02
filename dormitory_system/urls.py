@@ -1,35 +1,27 @@
-"""
-URL configuration for dormitory_system project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+# dormitory_system/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from accounts.views import MyLoginView, my_logout
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", lambda r: redirect("dorm_list"), name="home"),
+
+    # Apps
     path("dorms/", include("dorms.urls")),
     path("rooms/", include("rooms.urls")),
-    path("", include("accounts.urls")),
+    path("accounts/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
-    
-        # --- Django Password Reset flow ---
+    path("logout/", my_logout, name="logout"), 
+
+    # Login
+    path("login/", MyLoginView.as_view(), name="login"),
+
+    # --- Django Password Reset flow ---
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(
@@ -51,7 +43,7 @@ urlpatterns = [
         "reset/<uidb64>/<token>/",
         auth_views.PasswordResetConfirmView.as_view(
             template_name="accounts/password_reset_confirm.html",
-            success_url="/reset/done/",
+            success_url="/accounts/reset/done/",
         ),
         name="password_reset_confirm",
     ),

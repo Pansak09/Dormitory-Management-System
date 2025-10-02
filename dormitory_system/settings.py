@@ -1,15 +1,17 @@
 from pathlib import Path
 import os
 import environ
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # โหลดค่า .env
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+load_dotenv()
 
 # Security
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-xxxx")
 DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -59,12 +61,12 @@ ROOT_URLCONF = "dormitory_system.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [BASE_DIR / "templates"],  # ✅ โฟลเดอร์ template หลัก
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
-                "django.template.context_processors.request",
+                "django.template.context_processors.request",  # ✅ ต้องมีสำหรับ allauth
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
@@ -81,8 +83,8 @@ DATABASES = {
         "NAME": env("DB_NAME"),
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),
-        "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT"),
+        "HOST": env("DB_HOST", default="localhost"),
+        "PORT": env("DB_PORT", default="5432"),
     }
 }
 
@@ -103,34 +105,39 @@ USE_TZ = True
 # Static & Media
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_DOMAIN = "127.0.0.1:8000"   # สำหรับ development
+DEFAULT_PROTOCOL = "http"   
 
 # Login / Logout
 LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/dorms/"
 LOGOUT_REDIRECT_URL = "/login/"
 
-# Email config
+# Email config (ใช้ Gmail SMTP + App Password)
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = env("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="pansak.pa.66@ubu.ac.th")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="pylc shet djgq rjzu")  # ใช้ App Password ของ Gmail
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Allauth settings
+# Django Allauth settings
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"   # ใช้ "mandatory" ใน production
+ACCOUNT_EMAIL_VERIFICATION = "none"  # ✅ ใช้ "mandatory" ถ้า production
 ACCOUNT_USERNAME_REQUIRED = True
 
-# Social login
+ACCOUNT_LOGIN_REDIRECT_URL = "/dorms/"
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
+
+# Social login (Google OAuth2)
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_PROVIDERS = {

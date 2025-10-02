@@ -20,13 +20,14 @@ def _is_staff(user):
 
 # --- views ---
 
-# รายการหอ – ใครๆ ดูได้
+@login_required
 def dorm_list(request):
     dorms = Dorm.objects.all().order_by("name")
     return render(request, "dorms/list.html", {"dorms": dorms})
 
 
 # รายละเอียดหอ/กริดห้อง – ใครๆ ดูได้
+@login_required
 def dorm_detail(request, pk):
     dorm = get_object_or_404(Dorm, pk=pk)
     rooms = Room.objects.filter(dorm=dorm).order_by("room_number")
