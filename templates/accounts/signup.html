@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 {% block title %}สมัครสมาชิก{% endblock %}
 {% block content %}
 <div class="max-w-md mx-auto bg-white p-6 rounded shadow">
@@ -8,37 +9,48 @@
 
     <div>
       <label class="block text-sm mb-1">ชื่อผู้ใช้</label>
-      {{ form.username }}
-      {% if form.username.errors %}<p class="text-red-600 text-sm">{{ form.username.errors.0 }}</p>{% endif %}
+      {{ form.username|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.username.errors %}
+        <p class="text-red-600 text-sm">{{ form.username.errors.0 }}</p>
+      {% endif %}
     </div>
 
     <div>
       <label class="block text-sm mb-1">อีเมล</label>
-      {{ form.email }}
-      {% if form.email.errors %}<p class="text-red-600 text-sm">{{ form.email.errors.0 }}</p>{% endif %}
+      {{ form.email|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.email.errors %}
+        <p class="text-red-600 text-sm">{{ form.email.errors.0 }}</p>
+      {% endif %}
     </div>
 
     <div>
       <label class="block text-sm mb-1">รหัสผ่าน</label>
-      {{ form.password1 }}
-      {% if form.password1.errors %}<p class="text-red-600 text-sm">{{ form.password1.errors.0 }}</p>{% endif %}
+      {{ form.password1|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.password1.errors %}
+        <p class="text-red-600 text-sm">{{ form.password1.errors.0 }}</p>
+      {% endif %}
     </div>
 
     <div>
       <label class="block text-sm mb-1">ยืนยันรหัสผ่าน</label>
-      {{ form.password2 }}
-      {% if form.password2.errors %}<p class="text-red-600 text-sm">{{ form.password2.errors.0 }}</p>{% endif %}
+      {{ form.password2|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.password2.errors %}
+        <p class="text-red-600 text-sm">{{ form.password2.errors.0 }}</p>
+      {% endif %}
     </div>
 
     {% if form.non_field_errors %}
       <p class="text-red-600 text-sm">{{ form.non_field_errors.0 }}</p>
     {% endif %}
 
-    <button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded w-full">สมัครสมาชิก</button>
+    <button class="mt-2 px-4 py-2 bg-blue-600 text-white rounded w-full hover:bg-blue-700 transition">
+      สมัครสมาชิก
+    </button>
   </form>
 
   <p class="text-sm text-gray-600 mt-4">
-    มีบัญชีแล้ว? <a class="text-blue-600 underline" href="{% url 'login' %}">เข้าสู่ระบบ</a>
+    มีบัญชีแล้ว?
+    <a class="text-blue-600 underline" href="{% url 'login' %}">เข้าสู่ระบบ</a>
   </p>
 </div>
 {% endblock %}

@@ -9,13 +9,12 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import get_user_model, login, authenticate, logout
 from django.contrib.auth.views import LoginView, PasswordResetView
 from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from .forms import SignUpForm
 from .models import EmailOTP
 
 User = get_user_model()
-
-# -------------------- LOGIN & SIGNUP (มีอยู่แล้วก็ใช้ต่อได้) --------------------
 
 class MyLoginView(LoginView):
     template_name = "accounts/login.html"
@@ -40,8 +39,6 @@ def signup(request):
         form = SignUpForm()
     return render(request, "accounts/signup.html", {"form": form})
 
-# -------------------- OTP EMAIL RESET PASSWORD --------------------
-
 def _send_otp_email(to_email: str, first_name: str, code: str):
     """ส่งอีเมล OTP ไปยังผู้ใช้"""
     subject = "รหัส OTP สำหรับรีเซ็ตรหัสผ่าน (หมดอายุภายใน 5 นาที)"
@@ -51,7 +48,7 @@ def _send_otp_email(to_email: str, first_name: str, code: str):
         f"**รหัสจะหมดอายุภายใน 5 นาที**\n\n"
         f"หากคุณไม่ได้ร้องขอ กรุณาเพิกเฉยอีเมลฉบับนี้"
     )
-    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", settings.EMAIL_HOST_USER)
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", getattr(settings, "EMAIL_HOST_USER", ""))
     send_mail(subject, body, from_email, [to_email], fail_silently=False)
 
 @csrf_protect
@@ -150,8 +147,7 @@ def reset_password_custom(request):
 
         user.set_password(new_password)
         user.save()
-
-        # เคลียร์ session ที่เกี่ยวกับ OTP
+        
         for key in ["otp_user_id", "otp_verified", "otp_requested_at"]:
             request.session.pop(key, None)
 
@@ -160,7 +156,6 @@ def reset_password_custom(request):
 
     return render(request, "otp/reset_password_custom.html")
 
-# (ถ้าใช้ Password Reset แบบลิงก์อีเมลด้วย ให้คง CustomPasswordResetView นี้ไว้)
 class CustomPasswordResetView(PasswordResetView):
     """บังคับ domain/protocol ในอีเมล reset password"""
     def get_context_data(self, **kwargs):

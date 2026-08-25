@@ -11,14 +11,13 @@ class Room(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=VACANT)
     price_per_month = models.DecimalField(max_digits=10, decimal_places=2, default=3000)
     floor = models.IntegerField(default=1)
-
-    # ข้อมูลผู้เช่า (กรอกเมื่อจองแล้ว)
+    
     tenant_name = models.CharField(max_length=120, blank=True)
     tenant_address = models.TextField(blank=True)
     tenant_phone = models.CharField(max_length=30, blank=True)
     
-    booking_date = models.DateField(blank=True, null=True)   # วันที่จอง
-    move_in_date = models.DateField(blank=True, null=True)   # วันเข้าอยู่
+    booking_date = models.DateField(blank=True, null=True)   
+    move_in_date = models.DateField(blank=True, null=True)   
 
     class Meta:
         constraints = [

@@ -1,14 +1,12 @@
-{# แสดงข้อความในแผงซ้ายว่า “ลบสำเร็จ” #}
 <div class="p-3 rounded-lg bg-green-50 text-green-700 text-sm">
   ลบห้องเรียบร้อยแล้ว
 </div>
 
-{# OOB: สคริปต์นี้จะถูกรันนอกเป้าหมาย และลบการ์ดในกริดทันที #}
 <script hx-swap-oob="true">
   (function(){
     var tile = document.getElementById('room-tile-{{ room_id }}');
     if (tile && tile.parentNode) {
-      tile.parentNode.removeChild(tile);   // ลบการ์ดออกจากกริด
+      tile.parentNode.removeChild(tile); 
     }
   })();
 </script>

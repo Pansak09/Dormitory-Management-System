@@ -2,85 +2,108 @@
 {% block title %}{{ dorm.name }}{% endblock %}
 {% block content %}
 
-<div class="flex items-start gap-4 mb-6">
-    {% if dorm.image %}
-      <img src="{{ dorm.image.url }}" alt="รูป {{ dorm.name }}"
-           class="w-28 h-28 object-cover rounded-2xl border shadow-sm">
-    {% endif %}
-    <div class="flex-1">
-      <h1 class="text-2xl font-bold">{{ dorm.name }}</h1>
-      <p class="text-gray-500">{{ dorm.address|default:"—" }}</p>
-    </div>
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 py-10">
+  <div class="max-w-7xl mx-auto px-6 space-y-10">
 
-    {% if request.user.is_staff or request.user.is_superuser %}
-      <!-- ปุ่มแก้ไข/ลบ เฉพาะแอดมิน -->
-      <a href="{% url 'dorm_edit' dorm.id %}"
-         class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded">
-        แก้ไขหอพัก
-      </a>
-      <a href="{% url 'dorm_delete' dorm.id %}"
-         class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">
-        ลบ
-      </a>
-    {% endif %}
-</div>
-
-<div class="flex items-center gap-3 text-sm mb-4">
-    <span class="inline-flex items-center gap-1">
-      <span class="w-3 h-3 rounded bg-red-500"></span> ห้องว่าง
-    </span>
-    <span class="inline-flex items-center gap-1">
-      <span class="w-3 h-3 rounded bg-green-500"></span> ห้องมีผู้เช่า
-    </span>
-</div>
-
-<div class="grid grid-cols-12 gap-6">
-  <!-- Sidebar -->
-  <aside class="col-span-12 md:col-span-4">
-    <div class="bg-white rounded-2xl shadow-sm border">
-      <div class="px-4 py-3 border-b font-semibold">ห้องพัก</div>
-      <div id="room-detail" class="p-4 text-gray-600">
-        เลือกห้องทางขวาเพื่อดูรายละเอียด
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+      <div class="flex items-center gap-5">
+        {% if dorm.image %}
+          <img src="{{ dorm.image.url }}" alt="รูป {{ dorm.name }}"
+               class="w-28 h-28 object-cover rounded-2xl border-4 border-indigo-100 shadow-md">
+        {% else %}
+          <div class="w-28 h-28 flex items-center justify-center rounded-2xl bg-indigo-100 text-indigo-600 text-4xl font-bold shadow">
+            🏢
+          </div>
+        {% endif %}
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-800">{{ dorm.name }}</h1>
+          <p class="text-gray-500 mt-1">{{ dorm.address|default:"—" }}</p>
+        </div>
       </div>
+
+      {% if request.user.is_staff or request.user.is_superuser %}
+        <div class="flex flex-wrap gap-3">
+          <a href="{% url 'dorm_edit' dorm.id %}"
+             class="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-xl shadow-md hover:shadow-lg transition">
+            ✏️ แก้ไข
+          </a>
+          <a href="{% url 'dorm_delete' dorm.id %}"
+             class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition">
+            🗑️ ลบ
+          </a>
+        </div>
+      {% endif %}
     </div>
 
-    {% if request.user.is_staff or request.user.is_superuser %}
-      <!-- ปุ่มเพิ่มห้อง เฉพาะแอดมิน -->
-      <div class="mt-4 grid grid-cols-1 gap-2">
-        <a href="{% url 'room_create' %}?dorm_id={{ dorm.id }}"
-           class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-gray-800 transition">
-          เพิ่มห้องเดี่ยว
-        </a>
-        <a href="{% url 'room_bulk_create' %}?dorm_id={{ dorm.id }}"
-           class="inline-flex items-center justify-center w-full px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition">
-          เพิ่มหลายห้อง (กำหนดจำนวน)
-        </a>
-      </div>
-    {% endif %}
-  </aside>
-
-  <!-- Grid -->
-  <section class="col-span-12 md:col-span-8">
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-      {% for r in rooms %}
-        <button
-          id="room-tile-{{ r.id }}"
-          class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
-                 flex items-center justify-center shadow-sm border
-                 transition-transform hover:scale-[1.02]
-                 ring-2 ring-transparent
-                 {% if r.status == 'OCCUPIED' %}bg-green-500 border-green-600{% else %}bg-red-500 border-red-600{% endif %}"
-          hx-get="{% url 'room_detail_partial' r.id %}"
-          hx-target="#room-detail"
-          hx-swap="innerHTML"
-          title="ห้อง {{ r.room_number }}">
-          {{ r.room_number|default:"—" }}
-        </button>
-      {% empty %}
-        <p class="col-span-5 text-gray-500">ยังไม่มีห้องในหอนี้</p>
-      {% endfor %}
+    <div class="flex items-center gap-3 text-sm justify-center md:justify-start">
+      <span class="inline-flex items-center gap-2 bg-red-100 text-red-600 px-3 py-1 rounded-full shadow-sm">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span> ห้องว่าง
+      </span>
+      <span class="inline-flex items-center gap-2 bg-green-100 text-green-600 px-3 py-1 rounded-full shadow-sm">
+        <span class="w-3 h-3 rounded-full bg-green-500"></span> ห้องมีผู้เช่า
+      </span>
     </div>
-  </section>
+
+    <div class="grid grid-cols-12 gap-6">
+      
+      <aside class="col-span-12 md:col-span-4">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+          <div class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white font-semibold">
+            รายละเอียดห้องพัก
+          </div>
+          <div id="room-detail" class="p-5 text-gray-600 text-sm leading-relaxed">
+            เลือกห้องทางขวาเพื่อดูรายละเอียด
+          </div>
+        </div>
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+          <div class="mt-5 grid gap-3">
+            <a href="{% url 'room_create' %}?dorm_id={{ dorm.id }}"
+               class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-semibold shadow-md hover:shadow-lg transition">
+              ➕ เพิ่มห้องเดี่ยว
+            </a>
+            <a href="{% url 'room_bulk_create' %}?dorm_id={{ dorm.id }}"
+               class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-md hover:shadow-lg transition">
+              🏘️ เพิ่มหลายห้อง
+            </a>
+          </div>
+        {% endif %}
+      </aside>
+
+      <section class="col-span-12 md:col-span-8">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <h2 class="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
+            🏠 รายการห้องทั้งหมด
+          </h2>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+            {% for r in rooms %}
+              <button
+                id="room-tile-{{ r.id }}"
+                class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
+                       flex items-center justify-center shadow-md border
+                       transition-transform hover:scale-[1.05]
+                       ring-2 ring-transparent hover:ring-indigo-400
+                       {% if r.status == 'OCCUPIED' %}
+                          bg-gradient-to-br from-green-500 to-emerald-600 border-green-600
+                       {% else %}
+                          bg-gradient-to-br from-red-500 to-rose-600 border-red-600
+                       {% endif %}"
+                hx-get="{% url 'room_detail_partial' r.id %}"
+                hx-target="#room-detail"
+                hx-swap="innerHTML"
+                title="ห้อง {{ r.room_number }}">
+                {{ r.room_number|default:"—" }}
+              </button>
+            {% empty %}
+              <p class="col-span-5 text-gray-500 text-center py-10">ยังไม่มีห้องในหอนี้ 😴</p>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -91,4 +114,5 @@
     tile.classList.add('ring-blue-500');
   });
 </script>
+
 {% endblock %}

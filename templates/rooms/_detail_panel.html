@@ -1,7 +1,5 @@
-{# แผงรายละเอียดห้อง; ใช้ทั้งโหมด staff และ public #}
 
 {% if request.user.is_staff or request.user.is_superuser %}
-  {# -------- โหมด Staff/Superuser: เห็นรายละเอียดเต็ม + ปุ่มจัดการ -------- #}
   <div class="space-y-3">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">ห้อง {{ r.room_number }}</h3>
@@ -30,9 +28,14 @@
     </div>
 
     <div class="pt-2 flex flex-wrap gap-2">
-      <a class="px-3 py-2 border rounded-xl hover:bg-gray-50"
-         hx-get="{% url 'room_edit' r.id %}"
-         hx-target="#room-detail" hx-swap="innerHTML">แก้ไขห้อง</a>
+      <a
+        class="px-3 py-2 border rounded-xl hover:bg-gray-50 cursor-pointer"
+        hx-get="{% url 'room_edit' r.id %}"
+        hx-target="#room-detail"
+        hx-swap="innerHTML"
+      >
+        ✏️ แก้ไขห้อง
+      </a>
 
       {% if r.status == 'OCCUPIED' %}
         <form hx-post="{% url 'set_room_status' r.id %}?status=VACANT"
@@ -57,7 +60,6 @@
     </div>
   </div>
 
-  {# อัปเดตการ์ดในกริด (OOB) ให้เปลี่ยนสีตรงตามสถานะ #}
   <button
     id="room-tile-{{ r.id }}"
     hx-swap-oob="true"
@@ -73,7 +75,6 @@
   </button>
 
 {% else %}
-  {# -------- โหมด Public: เห็นเฉพาะสถานะ -------- #}
   <div class="space-y-3">
     <div class="flex items-center justify-between">
       <h3 class="text-lg font-semibold">ห้อง {{ r.room_number }}</h3>

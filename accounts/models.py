@@ -21,7 +21,6 @@ class EmailOTP(models.Model):
         """สร้าง OTP 6 หลัก และตั้งหมดอายุภายใน X นาที (ดีฟอลต์ 5)"""
         code = f"{random.randint(0, 999999):06d}"
         expires = timezone.now() + timedelta(minutes=minutes)
-        # ลบ OTP เก่าที่หมดอายุ (ของผู้ใช้นี้) ทิ้ง
         cls.objects.filter(user=user, expires_at__lt=timezone.now()).delete()
         return cls.objects.create(user=user, otp_code=code, expires_at=expires)
 

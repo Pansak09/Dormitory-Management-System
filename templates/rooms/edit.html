@@ -1,15 +1,32 @@
 {% extends "base.html" %}
 {% block title %}แก้ไขห้อง {{ r.room_number }}{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">แก้ไขห้อง {{ r.room_number }}</h1>
-<form method="post" class="space-y-3">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <div class="flex gap-2">
-    <button class="px-4 py-2 bg-blue-600 text-white rounded">บันทึก</button>
-    <a href="{% url 'dorm_detail' r.dorm_id %}" class="px-4 py-2 border rounded">ยกเลิก</a>
-    <a href="{% url 'room_delete' r.id %}" class="ml-auto px-4 py-2 bg-red-600 text-white rounded">
-      ลบห้อง
-  </div>
-</form>
+
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow border border-gray-200 mt-6">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+    ✏️ แก้ไขห้อง {{ r.room_number }}
+  </h1>
+
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <div class="flex flex-wrap items-center gap-3 pt-4 border-t mt-4">
+      <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm transition">
+        💾 บันทึก
+      </button>
+
+      <a href="{% url 'dorm_detail' r.dorm_id %}"
+         class="px-5 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 shadow-sm transition">
+        ❌ ยกเลิก
+      </a>
+
+      <a href="{% url 'room_delete' r.id %}"
+         class="ml-auto px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-sm transition">
+        🗑️ ลบห้อง
+      </a>
+    </div>
+  </form>
+</div>
+
 {% endblock %}

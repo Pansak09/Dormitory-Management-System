@@ -12,16 +12,9 @@ from dorms.utils import is_staff_user
 from .models import Room
 from .forms import RoomForm
 
-
-# ---------- อ่านอย่างเดียว (public) ----------
-
 def room_detail_partial(request, pk):
-    """แผงรายละเอียดห้อง (โหลดด้วย HTMX) – ใครๆ ดูได้"""
     r = get_object_or_404(Room, pk=pk)
     return render(request, "rooms/_detail_panel.html", {"r": r})
-
-
-# ---------- จัดการ (เฉพาะ staff/superuser) ----------
 
 @user_passes_test(is_staff_user)
 def room_create(request):
@@ -42,50 +35,27 @@ def room_create(request):
     return render(request, "rooms/create.html", {"form": form, "dorm": dorm})
 
 
-@user_passes_test(is_staff_user)
+@login_required
 def room_edit(request, pk):
-    """
-    แก้ไขห้องผ่านแผงด้านขวา (HTMX)
-    - POST สำเร็จ: ส่ง panel ใหม่ + การ์ดห้อง OOB + trigger room-changed
-    - GET: ส่งฟอร์มแก้ไข (_detail_panel_edit.html)
-    """
-    room = get_object_or_404(Room, pk=pk)
+    r = get_object_or_404(Room, pk=pk)
 
     if request.method == "POST":
-        form = RoomForm(request.POST, instance=room)
+        form = RoomForm(request.POST, instance=r)
         if form.is_valid():
-            room = form.save()
+            r = form.save()
+            if request.headers.get("HX-Request"):
+                return render(request, "rooms/_detail_panel.html", {"r": r})
+            return redirect("dorm_detail", pk=r.dorm_id)
+    else:
+        form = RoomForm(instance=r)
+        
+    if request.headers.get("HX-Request"):
+        return render(request, "rooms/_edit_form.html", {"form": form, "r": r})
 
-            # 1) partial panel ด้านขวา
-            panel_html = render_to_string("rooms/_detail_panel.html", {"r": room}, request=request)
-
-            # 2) partial "การ์ดห้อง" เพื่อแทนที่ในการ์ดกริด (OOB)
-            card_html = render_to_string("rooms/_card.html", {"r": room, "user": request.user}, request=request)
-            oob_wrapper = f'\n<div id="room-card-{room.id}" hx-swap-oob="outerHTML">{card_html}</div>'
-
-            resp = HttpResponse(panel_html + oob_wrapper)
-
-            # 3) Trigger ให้ส่วนสรุป/แดชบอร์ดรีโหลด (ถ้ามีตั้ง hx-trigger ไว้)
-            resp["HX-Trigger"] = json.dumps({"room-changed": {"dorm": room.dorm_id, "room": room.id}})
-            return resp
-        else:
-            # ฟอร์มไม่ผ่าน ก็ส่งฟอร์มกลับไปแก้
-            html = render_to_string("rooms/_detail_panel_edit.html", {"r": room, "form": form}, request=request)
-            return HttpResponse(html, status=400)
-
-    # GET
-    form = RoomForm(instance=room)
-    html = render_to_string("rooms/_detail_panel_edit.html", {"r": room, "form": form}, request=request)
-    return HttpResponse(html)
-
+    return render(request, "rooms/edit.html", {"form": form, "r": r})
 
 @user_passes_test(is_staff_user)
 def room_toggle_book(request, pk):
-    """
-    สลับสถานะ ว่าง(vacant) <-> จองแล้ว(booked) จากปุ่มบนการ์ด
-    - POST เท่านั้น
-    - ส่ง panel ใหม่ + การ์ดห้อง OOB + trigger room-changed
-    """
     if request.method != "POST":
         return HttpResponseBadRequest("POST only")
 
@@ -108,10 +78,6 @@ def room_toggle_book(request, pk):
 
 @user_passes_test(is_staff_user)
 def set_room_status(request, pk):
-    """
-    (ออปชัน) ตั้งค่าสถานะตรง ๆ ผ่าน query string ?status=vacant|booked|occupied
-    ใช้สำหรับกรณีต้องการลิงก์เร็ว ๆ; ปกติแนะนำใช้ room_toggle_book แทน
-    """
     r = get_object_or_404(Room, pk=pk)
     status = request.GET.get("status")
     if status in dict(Room.STATUS_CHOICES):
@@ -126,16 +92,12 @@ def room_delete(request, pk):
     dorm_id = r.dorm_id
     if request.method == "POST":
         r.delete()
-        # ถ้ามาจาก HTMX ให้รีไดเร็กต์ไปหน้ารายละเอียดหอ
         if request.headers.get("HX-Request"):
             resp = HttpResponse("", status=204)
             resp["HX-Redirect"] = reverse("dorm_detail", kwargs={"pk": dorm_id})
             return resp
         return redirect("dorm_detail", pk=dorm_id)
     return render(request, "rooms/delete.html", {"r": r})
-
-
-# ---------- เพิ่มหลายห้อง ----------
 
 class RoomBulkForm(forms.Form):
     dorm = forms.IntegerField(widget=forms.HiddenInput)

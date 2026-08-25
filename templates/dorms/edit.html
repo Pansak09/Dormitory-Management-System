@@ -1,54 +1,83 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 {% block title %}แก้ไขหอพัก{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">แก้ไขหอพัก</h1>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-10">
+  <div class="max-w-2xl w-full bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
+    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-700 border-b pb-3 flex items-center justify-center gap-2">
+      🏢 แก้ไขหอพัก
+    </h1>
 
-<form method="post" enctype="multipart/form-data" class="space-y-4">
-  {% csrf_token %}
-  <div>
-    <label class="block text-sm mb-1">ชื่อหอ</label>
-    {{ form.name }}
-    {% if form.name.errors %}
-      <p class="text-red-600 text-sm">{{ form.name.errors.0 }}</p>
-    {% endif %}
-  </div>
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
 
-  <div>
-    <label class="block text-sm mb-1">ที่อยู่</label>
-    {{ form.address }}
-    {% if form.address.errors %}
-      <p class="text-red-600 text-sm">{{ form.address.errors.0 }}</p>
-    {% endif %}
-  </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อหอ</label>
+        {{ form.name|add_class:"w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" }}
+      </div>
 
-  <div>
-    <label class="block text-sm mb-1">จำนวนห้องสูงสุด</label>
-    {{ form.max_rooms }}
-    {% if form.max_rooms.errors %}
-      <p class="text-red-600 text-sm">{{ form.max_rooms.errors.0 }}</p>
-    {% endif %}
-  </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
+        {{ form.address|add_class:"w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" }}
+      </div>
 
-  <div>
-    <label class="block text-sm mb-1">รูปภาพหอ</label>
-    {% if dorm.image %}
-      <img src="{{ dorm.image.url }}" alt="รูปเดิม {{ dorm.name }}"
-           class="h-24 w-24 object-cover rounded mb-2 border shadow-sm">
-    {% endif %}
-    {{ form.image }}
-    {% if form.image.errors %}
-      <p class="text-red-600 text-sm">{{ form.image.errors.0 }}</p>
-    {% endif %}
-  </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนห้องสูงสุด</label>
+        {{ form.max_rooms|add_class:"w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" }}
+      </div>
 
-  <div class="flex gap-2 mt-4">
-    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
-      บันทึกการแก้ไข
-    </button>
-    <a href="{% url 'dorm_detail' dorm.id %}"
-       class="px-4 py-2 border rounded">
-      ยกเลิก
-    </a>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพหอพัก (อัปเดตได้)</label>
+
+        {% if dorm.image %}
+          <div class="flex items-center gap-3 mb-3">
+            <span class="text-sm text-gray-600">รูปเดิม:</span>
+            <img src="{{ dorm.image.url }}" alt="รูปเดิม {{ dorm.name }}"
+                 class="h-20 w-20 object-cover rounded-lg border shadow-sm">
+          </div>
+        {% endif %}
+
+        <input type="file" name="image" id="id_image" accept="image/*"
+               class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg bg-white px-3 py-2
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer" />
+
+        <img id="preview" class="hidden w-20 h-20 mt-3 rounded-lg object-cover border shadow-sm" alt="preview">
+
+        <p class="text-xs text-gray-500 mt-1">รองรับ JPG/PNG ขนาดไฟล์แนะนำ &lt; 2MB</p>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button type="submit" 
+                class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow flex items-center justify-center gap-2">
+          💾 บันทึกการแก้ไข
+        </button>
+        <a href="{% url 'dorm_detail' dorm.id %}" 
+           class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-center font-semibold flex items-center justify-center gap-2">
+          ❌ ยกเลิก
+        </a>
+      </div>
+    </form>
   </div>
-</form>
+</div>
+
+<script>
+  const fileInput = document.getElementById('id_image');
+  const preview = document.getElementById('preview');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.classList.add('hidden');
+      }
+    });
+  }
+</script>
 {% endblock %}

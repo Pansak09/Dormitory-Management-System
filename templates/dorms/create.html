@@ -1,33 +1,76 @@
 {% extends "base.html" %}
-{% block title %}เพิ่มหอใหม่{% endblock %}
+{% load widget_tweaks %}
+{% block title %}เพิ่มหอพัก{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">เพิ่มหอใหม่</h1>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-10">
+  <div class="max-w-2xl w-full bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
+    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-700 border-b pb-3 flex items-center justify-center gap-2">
+      🏠 เพิ่มหอพักใหม่
+    </h1>
 
-<form method="post" enctype="multipart/form-data" class="space-y-4">  {# <= เพิ่ม enctype #}
-  {% csrf_token %}
-  <div>
-    <label class="block text-sm mb-1">ชื่อหอ</label>
-    {{ form.name }}{% if form.name.errors %}<p class="text-red-600 text-sm">{{ form.name.errors.0 }}</p>{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm mb-1">ที่อยู่</label>
-    {{ form.address }}{% if form.address.errors %}<p class="text-red-600 text-sm">{{ form.address.errors.0 }}</p>{% endif %}
-  </div>
-  <div>
-    <label class="block text-sm mb-1">จำนวนห้องสูงสุด</label>
-    {{ form.max_rooms }}{% if form.max_rooms.errors %}<p class="text-red-600 text-sm">{{ form.max_rooms.errors.0 }}</p>{% endif %}
-  </div>
+    <form method="post" enctype="multipart/form-data" class="space-y-5">
+      {% csrf_token %}
 
-  <!-- อัปโหลดรูปหอ -->
-  <div>
-    <label class="block text-sm mb-1">รูปภาพหอ (ไม่บังคับ)</label>
-    {{ form.image }}{% if form.image.errors %}<p class="text-red-600 text-sm">{{ form.image.errors.0 }}</p>{% endif %}
-    <p class="text-xs text-gray-500 mt-1">รองรับ JPG/PNG ขนาดไฟล์แนะนำ &lt; 2MB</p>
-  </div>
+      <!-- ชื่อหอ -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อหอ</label>
+        {{ form.name }}
+      </div>
 
-  <div class="flex gap-2 mt-4">
-    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">บันทึก</button>
-    <a href="{% url 'dorm_list' %}" class="px-4 py-2 border rounded">ยกเลิก</a>
+      <!-- ที่อยู่ -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่</label>
+        {{ form.address }}
+      </div>
+
+      <!-- จำนวนห้องสูงสุด -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนห้องสูงสุด</label>
+        {{ form.max_rooms }}
+      </div>
+
+      <!-- อัปโหลดรูป -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">รูปภาพหอพัก (ไม่บังคับ)</label>
+        {{ form.image }}
+        <img id="preview" class="hidden w-20 h-20 mt-3 rounded-lg object-cover border shadow-sm" alt="preview">
+        <p class="text-xs text-gray-500 mt-1">รองรับ JPG/PNG ขนาดไฟล์แนะนำ &lt; 2MB</p>
+      </div>
+
+      <!-- ปุ่ม -->
+      <div class="flex gap-3 pt-4">
+        <button type="submit" 
+                class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold shadow flex items-center justify-center gap-2">
+          💾 บันทึก
+        </button>
+        <a href="{% url 'dorm_list' %}" 
+           class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-lg text-center font-semibold flex items-center justify-center gap-2">
+          ❌ ยกเลิก
+        </a>
+      </div>
+    </form>
   </div>
-</form>
+</div>
+
+<!-- Preview รูป -->
+<script>
+  const fileInput = document.getElementById('id_image');
+  const preview = document.getElementById('preview');
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.classList.add('hidden');
+      }
+    });
+  }
+</script>
 {% endblock %}

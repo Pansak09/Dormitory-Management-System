@@ -11,17 +11,14 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", lambda r: redirect("dorm_list"), name="home"),
 
-    # Apps
     path("dorms/", include("dorms.urls")),
     path("rooms/", include("rooms.urls")),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
     path("logout/", my_logout, name="logout"), 
 
-    # Login
     path("login/", MyLoginView.as_view(), name="login"),
 
-    # --- Django Password Reset flow ---
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(

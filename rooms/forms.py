@@ -2,7 +2,7 @@ from django import forms
 from .models import Room
     
 class DatePickerInput(forms.TextInput):
-    input_type = "text"  # ให้ Flatpickr control
+    input_type = "text" 
     
 class RoomForm(forms.ModelForm):
     class Meta:
@@ -36,14 +36,12 @@ class RoomForm(forms.ModelForm):
             "tenant_name": forms.TextInput(attrs={"class":"border rounded px-3 py-2 w-full"}),
             "tenant_phone": forms.TextInput(attrs={"class":"border rounded px-3 py-2 w-full"}),
             "tenant_address": forms.Textarea(attrs={"class":"border rounded px-3 py-2 w-full", "rows":3}),
-            # ใช้ <input type="date"> เนทีฟ
             "booking_date": forms.DateInput(attrs={"type":"date","class":"border rounded px-3 py-2 w-full"}),
             "move_in_date": forms.DateInput(attrs={"type":"date","class":"border rounded px-3 py-2 w-full"}),
         }
 
     def clean(self):
         data = super().clean()
-        # ถ้าสถานะเป็นจองแล้ว ต้องมีชื่อผู้เช่าอย่างน้อย
         if data.get("status") == Room.OCCUPIED and not data.get("tenant_name"):
             self.add_error("tenant_name", "กรุณากรอกชื่อผู้เช่าเมื่อทำการจอง")
         return data

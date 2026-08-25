@@ -22,6 +22,3 @@ class SignUpForm(UserCreationForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("อีเมลนี้มีผู้ใช้งานแล้ว")
         return email
-
-class PhoneForm(forms.Form):
-    phone_number = forms.CharField(max_length=15, required=True, label="เบอร์โทรศัพท์")

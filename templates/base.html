@@ -4,25 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{% block title %}Dormitory System{% endblock %}</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
 
-  <!-- Flatpickr สำหรับ Datepicker -->
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
   <script>
-    // CSRF Token สำหรับ HTMX
-    document.addEventListener('htmx:configRequest', (evt) => {
+    document.addEventListener('htmx:configRequest', evt => {
       const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
       if (csrftoken) evt.detail.headers['X-CSRFToken'] = csrftoken;
     });
 
-    // ฟังก์ชัน init datepickers
     function initDatePickers(scope) {
       const root = scope || document;
       const ids = ["id_booking_date", "id_move_in_date"];
-      ids.forEach((id) => {
+      ids.forEach(id => {
         const el = root.getElementById(id);
         if (el && !el._flatpickr) {
           flatpickr(el, {
@@ -32,44 +31,80 @@
         }
       });
     }
-
-    // โหลดครั้งแรก
     document.addEventListener("DOMContentLoaded", () => initDatePickers());
-
-    // โหลดใหม่ทุกครั้งหลัง HTMX swap
-    document.body.addEventListener("htmx:afterSwap", (ev) => {
-      const target = ev.target || document;
-      initDatePickers(target);
-    });
+    document.body.addEventListener("htmx:afterSwap", ev => initDatePickers(ev.target || document));
   </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
   <form class="hidden">{% csrf_token %}</form>
 
-  <!-- Navbar -->
-  <nav class="bg-white shadow sticky top-0 z-10">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between">
-      <a href="/" class="font-bold">Dormitory</a>
-      <div class="space-x-4">
-        {% if user.is_authenticated %}
-          <a href="{% url 'dorm_list' %}" class="hover:underline">Home</a>
-          {# ✅ โชว์ Dashboard เฉพาะ staff/superuser #}
-          {% if user.is_staff or user.is_superuser %}
-            <a href="{% url 'dashboard' %}" class="hover:underline">Dashboard</a>
+  <nav class="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 shadow-lg sticky top-0 z-30 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="flex justify-between items-center py-4">
+
+        <a href="/" class="flex items-center gap-2 text-white font-extrabold text-2xl tracking-wide hover:opacity-90 transition">
+          Dormitory
+        </a>
+
+        <div class="hidden md:flex items-center gap-6 text-white font-medium">
+          {% if user.is_authenticated %}
+            <a href="{% url 'dorm_list' %}" class="hover:text-yellow-300 transition">หน้าแรก</a>
+
+            {% if user.is_staff or user.is_superuser %}
+              <a href="{% url 'dashboard' %}" class="hover:text-yellow-300 transition">แดชบอร์ด</a>
+            {% endif %}
+
+            <span class="bg-white/25 px-3 py-1 rounded-full text-sm">{{ user.username }}</span>
+            <a href="/logout/" class="hover:text-red-300 transition">ออกจากระบบ</a>
+          {% else %}
+            <a href="/login/" class="hover:text-yellow-300 transition">เข้าสู่ระบบ</a>
+            <a href="{% url 'signup' %}" class="bg-white text-indigo-700 px-4 py-1.5 rounded-lg hover:bg-yellow-100 transition font-semibold shadow">
+              สมัครสมาชิก
+            </a>
           {% endif %}
-          <span>{{ user.username }}</span>
-          <a href="/logout/" class="text-red-600 hover:underline">Logout</a>
+        </div>
+
+        <button id="mobile-menu-button" class="md:hidden text-white text-3xl focus:outline-none">
+          ☰
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden bg-white text-gray-800 border-t border-gray-200 shadow-inner">
+      <div class="px-5 py-4 space-y-3 font-medium">
+        {% if user.is_authenticated %}
+          <a href="{% url 'dorm_list' %}" class="block hover:text-indigo-600">หน้าแรก</a>
+
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'dashboard' %}" class="block hover:text-indigo-600">แดชบอร์ด</a>
+          {% endif %}
+
+          <p class="text-gray-500 text-sm mt-2">👤 {{ user.username }}</p>
+          <a href="/logout/" class="block text-red-600 hover:text-red-700">ออกจากระบบ</a>
+
         {% else %}
-          <a href="/login/" class="hover:underline">Login</a>
-          <a href="{% url 'signup' %}" class="hover:underline">Sign up</a>
+          <a href="/login/" class="block hover:text-indigo-600">เข้าสู่ระบบ</a>
+          <a href="{% url 'signup' %}" class="block bg-indigo-600 text-white text-center py-2 rounded-lg hover:bg-indigo-700 transition">
+            สมัครสมาชิก
+          </a>
         {% endif %}
       </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto p-6">
+  <script>
+    const btn = document.getElementById("mobile-menu-button");
+    const menu = document.getElementById("mobile-menu");
+    btn?.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+      btn.textContent = menu.classList.contains("hidden") ? "☰" : "✕";
+    });
+  </script>
+
+  <main class="flex-grow max-w-7xl mx-auto p-6 w-full">
     {% block content %}{% endblock %}
   </main>
+
 </body>
 </html>

@@ -2,31 +2,63 @@
 {% block title %}หอพักทั้งหมด{% endblock %}
 {% block content %}
 
-<div class="max-w-5xl mx-auto space-y-6">
-  <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold">หอพักทั้งหมด</h1>
-    {% if request.user.is_staff or request.user.is_superuser %}
-      <a href="{% url 'dorm_create' %}"
-         class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-500">
-        + เพิ่มหอพัก
-      </a>
-    {% endif %}
-  </div>
+<div class="fixed inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 -z-10"></div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for dorm in dorms %}
-      <a href="{% url 'dorm_detail' dorm.id %}"
-         class="block bg-white rounded-xl shadow-sm border hover:shadow-md transition p-4">
-        {% if dorm.image %}
-          <img src="{{ dorm.image.url }}" alt="{{ dorm.name }}"
-               class="w-full h-40 object-cover rounded-lg mb-3">
-        {% endif %}
-        <h2 class="font-semibold text-lg">{{ dorm.name }}</h2>
-        <p class="text-sm text-gray-500">{{ dorm.address|default:"—" }}</p>
+<div class="min-h-screen flex flex-col items-center justify-start py-12 px-4">
+  <div class="max-w-6xl w-full space-y-10">
+
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <h1 class="text-3xl font-extrabold text-gray-800 flex items-center gap-2 drop-shadow-sm">
+        🏠 <span>หอพักทั้งหมด</span>
+      </h1>
+
+      {% if request.user.is_staff or request.user.is_superuser %}
+      <a href="{% url 'dorm_create' %}"
+         class="px-5 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 shadow-md hover:shadow-lg transition flex items-center gap-2">
+        ➕ เพิ่มหอพักใหม่
       </a>
-    {% empty %}
-      <p class="text-gray-500">ยังไม่มีหอพัก</p>
-    {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      {% for dorm in dorms %}
+        <a href="{% url 'dorm_detail' dorm.id %}"
+           class="group block bg-white rounded-2xl shadow-md hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1 border border-gray-100 overflow-hidden">
+          
+          {% if dorm.image %}
+            <img src="{{ dorm.image.url }}" alt="{{ dorm.name }}"
+                 class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+          {% else %}
+            <div class="w-full h-48 bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-500 text-5xl">
+              🏢
+            </div>
+          {% endif %}
+
+          <div class="p-5 space-y-2">
+            <h2 class="font-bold text-lg text-gray-800 group-hover:text-indigo-600 transition-colors">
+              {{ dorm.name }}
+            </h2>
+            <p class="text-sm text-gray-500 line-clamp-2">
+              {{ dorm.address|default:"ไม่มีที่อยู่" }}
+            </p>
+            <div class="pt-2 flex justify-between text-sm text-gray-400">
+              <span>ห้องสูงสุด: {{ dorm.max_rooms }}</span>
+              <span class="text-indigo-500 font-medium">ดูรายละเอียด →</span>
+            </div>
+          </div>
+        </a>
+      {% empty %}
+        <div class="col-span-full flex flex-col items-center justify-center text-gray-600 py-20">
+          <p class="text-xl font-medium">ยังไม่มีหอพักในระบบ 😴</p>
+          {% if request.user.is_staff or request.user.is_superuser %}
+          <a href="{% url 'dorm_create' %}"
+             class="mt-4 inline-block px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 shadow">
+            ➕ เพิ่มหอพักแรก
+          </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
   </div>
 </div>
 
