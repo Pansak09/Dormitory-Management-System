@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}ลบหลายห้อง{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-5xl space-y-6">
+  <div><a href="{% url 'dorm_detail' dorm.id %}" class="text-sm text-indigo-600 hover:underline">← กลับไป {{ dorm.name }}</a><h1 class="mt-2 text-2xl font-bold text-gray-800">ลบหลายห้อง</h1><p class="mt-1 text-sm text-rose-600">การลบห้องไม่สามารถย้อนกลับได้ ห้องที่มีบิลค่าเช่าอยู่จะไม่สามารถลบได้</p></div>
+  {% if floors %}
+    <form method="post" id="selected-delete-form" class="space-y-5">{% csrf_token %}<input type="hidden" name="dorm_id" value="{{ dorm.id }}"><input type="hidden" name="action" value="selected">
+      {% for floor, rooms in floors.items %}
+      <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 px-5 py-4"><div><h2 class="font-semibold text-gray-800">ชั้น {{ floor }}</h2><p class="text-xs text-gray-500">{{ rooms|length }} ห้อง</p></div><div class="flex gap-2"><button type="button" data-floor="{{ floor }}" class="toggle-floor rounded-lg border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700">เลือกทั้งชั้น</button><button type="submit" form="floor-delete-{{ floor }}" class="rounded-lg bg-rose-600 px-3 py-2 text-sm font-semibold text-white hover:bg-rose-700" onclick="return confirm('ยืนยันลบห้องทั้งหมดในชั้น {{ floor }}? การลบไม่สามารถย้อนกลับได้')">ลบทั้งชั้น</button></div></div>
+        <div class="grid grid-cols-2 gap-3 p-5 sm:grid-cols-3 md:grid-cols-5">{% for room in rooms %}<label class="flex cursor-pointer items-center gap-2 rounded-xl border border-gray-200 p-3 hover:border-indigo-300"><input type="checkbox" name="room_ids" value="{{ room.id }}" data-floor="{{ floor }}" class="h-4 w-4 rounded border-gray-300 text-indigo-600"><span><b>ห้อง {{ room.room_number }}</b><small class="block text-gray-500">{{ room.tenant_name|default:"ว่าง" }}</small></span></label>{% endfor %}</div>
+      </section>
+      {% endfor %}
+      <div class="sticky bottom-4 flex justify-end rounded-2xl bg-white/95 p-4 shadow-lg backdrop-blur"><button class="rounded-xl bg-rose-600 px-5 py-3 font-semibold text-white hover:bg-rose-700" onclick="return confirm('ยืนยันลบห้องที่เลือก? การลบไม่สามารถย้อนกลับได้')">ลบห้องที่เลือก</button></div>
+    </form>
+    {% for floor, rooms in floors.items %}<form id="floor-delete-{{ floor }}" method="post" action="{% url 'room_bulk_delete' %}">{% csrf_token %}<input type="hidden" name="dorm_id" value="{{ dorm.id }}"><input type="hidden" name="action" value="floor"><input type="hidden" name="floor" value="{{ floor }}"></form>{% endfor %}
+  {% else %}<div class="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center text-gray-500">ยังไม่มีห้องให้ลบ</div>{% endif %}
+</div>
+<script>
+document.querySelectorAll('.toggle-floor').forEach(button => button.addEventListener('click', () => {
+  const boxes = [...document.querySelectorAll(`input[data-floor="${button.dataset.floor}"]`)];
+  const shouldCheck = boxes.some(box => !box.checked);
+  boxes.forEach(box => box.checked = shouldCheck);
+  button.textContent = shouldCheck ? 'ยกเลิกเลือกทั้งชั้น' : 'เลือกทั้งชั้น';
+}));
+</script>
+{% endblock %}

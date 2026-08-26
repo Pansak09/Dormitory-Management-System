@@ -27,3 +27,14 @@ class EmailOTP(models.Model):
     def is_valid(self, code: str) -> bool:
         """ตรวจว่าโค้ดตรงและยังไม่หมดอายุ"""
         return self.otp_code == code and timezone.now() <= self.expires_at
+
+
+class TenantProfile(models.Model):
+    """ข้อมูลที่ต้องใช้เมื่อบัญชีขอเป็นผู้เช่า."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tenant_profile")
+    full_name = models.CharField(max_length=120)
+    phone = models.CharField(max_length=30)
+    address = models.TextField()
+
+    def __str__(self):
+        return f"ข้อมูลผู้เช่า: {self.full_name}"

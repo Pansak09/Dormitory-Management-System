@@ -24,6 +24,24 @@
     </div>
 
     <div>
+      <label class="block text-sm mb-1">ชื่อ-นามสกุล</label>
+      {{ form.full_name|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.full_name.errors %}<p class="text-red-600 text-sm">{{ form.full_name.errors.0 }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="block text-sm mb-1">เบอร์โทร</label>
+      {{ form.phone|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.phone.errors %}<p class="text-red-600 text-sm">{{ form.phone.errors.0 }}</p>{% endif %}
+    </div>
+
+    <div>
+      <label class="block text-sm mb-1">ที่อยู่</label>
+      {{ form.address|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
+      {% if form.address.errors %}<p class="text-red-600 text-sm">{{ form.address.errors.0 }}</p>{% endif %}
+    </div>
+
+    <div>
       <label class="block text-sm mb-1">รหัสผ่าน</label>
       {{ form.password1|add_class:"w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:border-blue-400" }}
       {% if form.password1.errors %}

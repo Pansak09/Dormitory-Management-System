@@ -13,6 +13,8 @@ urlpatterns = [
 
     path("dorms/", include("dorms.urls")),
     path("rooms/", include("rooms.urls")),
+    path("bills/", include("billing.urls")),
+    path("tenancy/", include("tenancy.urls")),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
     path("logout/", my_logout, name="logout"), 

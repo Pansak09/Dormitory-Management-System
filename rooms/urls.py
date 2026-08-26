@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path("create/", views.room_create, name="room_create"),
     path("bulk-create/", views.room_bulk_create, name="room_bulk_create"),
+    path("bulk-delete/", views.room_bulk_delete, name="room_bulk_delete"),
     path("<int:pk>/edit/", views.room_edit, name="room_edit"),
     path("<int:pk>/delete/", views.room_delete, name="room_delete"),
     path("<int:pk>/partial/", views.room_detail_partial, name="room_detail_partial"),

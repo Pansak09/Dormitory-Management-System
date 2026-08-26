@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     
     "dorms",
     "rooms",
+    "billing",
+    "tenancy",
     "accounts",
 ]
 
@@ -126,6 +128,10 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/login/"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_FORMS = {
+    "signup": "accounts.forms.GoogleSocialSignupForm",
+}
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],

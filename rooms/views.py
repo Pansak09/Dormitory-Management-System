@@ -1,9 +1,11 @@
 # rooms/views.py
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.urls import reverse
 from django import forms
+from django.db.models.deletion import ProtectedError
 from django.template.loader import render_to_string
 import json
 
@@ -14,7 +16,13 @@ from .forms import RoomForm
 
 def room_detail_partial(request, pk):
     r = get_object_or_404(Room, pk=pk)
-    return render(request, "rooms/_detail_panel.html", {"r": r})
+    tenant_request = None
+    if request.user.is_authenticated and not is_staff_user(request.user):
+        from tenancy.models import TenantRequest
+        tenant_request = TenantRequest.objects.filter(
+            room=r, user=request.user, status=TenantRequest.PENDING
+        ).first()
+    return render(request, "rooms/_detail_panel.html", {"r": r, "tenant_request": tenant_request})
 
 @user_passes_test(is_staff_user)
 def room_create(request):
@@ -35,7 +43,7 @@ def room_create(request):
     return render(request, "rooms/create.html", {"form": form, "dorm": dorm})
 
 
-@login_required
+@user_passes_test(is_staff_user)
 def room_edit(request, pk):
     r = get_object_or_404(Room, pk=pk)
 
@@ -152,3 +160,38 @@ def room_bulk_create(request):
         form = RoomBulkForm(initial=initial)
 
     return render(request, "rooms/bulk_create.html", {"form": form, "dorm": dorm})
+
+
+@user_passes_test(is_staff_user)
+def room_bulk_delete(request):
+    dorm_id = request.GET.get("dorm_id") or request.POST.get("dorm_id")
+    dorm = get_object_or_404(Dorm, pk=dorm_id)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        rooms = Room.objects.filter(dorm=dorm)
+        if action == "floor":
+            floor = request.POST.get("floor")
+            rooms = rooms.filter(floor=floor)
+            description = f"ห้องทั้งหมดชั้น {floor}"
+        else:
+            room_ids = request.POST.getlist("room_ids")
+            rooms = rooms.filter(pk__in=room_ids)
+            description = "ห้องที่เลือก"
+
+        count = rooms.count()
+        if not count:
+            messages.error(request, "กรุณาเลือกห้องที่ต้องการลบ")
+        else:
+            try:
+                rooms.delete()
+                messages.success(request, f"ลบ{description} {count} ห้องเรียบร้อยแล้ว")
+            except ProtectedError:
+                messages.error(request, "ไม่สามารถลบห้องที่มีบิลค่าเช่าอยู่ได้ กรุณาเก็บประวัติบิลไว้หรือจัดการบิลก่อน")
+        return redirect("dorm_detail", pk=dorm.pk)
+
+    rooms = list(Room.objects.filter(dorm=dorm).order_by("floor", "room_number"))
+    floors = {}
+    for room in rooms:
+        floors.setdefault(room.floor, []).append(room)
+    return render(request, "rooms/bulk_delete.html", {"dorm": dorm, "floors": floors})

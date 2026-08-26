@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}บิลค่าเช่า{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">บิลค่าเช่ารายเดือน</h1>
+      <p class="text-gray-500 text-sm">ดูยอดชำระและสถานะบิลของคุณ</p>
+    </div>
+    {% if user.is_staff or user.is_superuser %}
+      <a href="{% url 'bill_create' %}" class="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">+ สร้างบิลใหม่</a>
+    {% endif %}
+  </div>
+
+  {% if bills %}
+    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-gray-50 text-gray-600"><tr><th class="px-5 py-3">ห้อง / เดือน</th><th class="px-5 py-3">ครบกำหนด</th><th class="px-5 py-3 text-right">ยอดรวม</th><th class="px-5 py-3">สถานะ</th><th class="px-5 py-3"></th></tr></thead>
+        <tbody class="divide-y divide-gray-100">
+        {% for bill in bills %}
+          <tr class="hover:bg-indigo-50/40">
+            <td class="px-5 py-4"><p class="font-semibold">ห้อง {{ bill.room.room_number }}</p><p class="text-gray-500">{{ bill.room.dorm.name }} · {{ bill.month_label }}</p></td>
+            <td class="px-5 py-4">{{ bill.due_date|date:"d/m/Y" }}</td>
+            <td class="px-5 py-4 text-right font-semibold">{{ bill.total_amount|floatformat:2 }} บาท</td>
+            <td class="px-5 py-4"><span class="rounded-full px-3 py-1 text-xs font-semibold {% if bill.status == 'PAID' %}bg-emerald-100 text-emerald-700{% elif bill.status == 'PENDING_VERIFICATION' %}bg-amber-100 text-amber-700{% else %}bg-rose-100 text-rose-700{% endif %}">{{ bill.get_status_display }}</span></td>
+            <td class="px-5 py-4"><a class="font-medium text-indigo-600 hover:underline" href="{% url 'bill_detail' bill.id %}">ดูบิล</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center text-gray-500">ยังไม่มีบิลค่าเช่า</div>
+  {% endif %}
+</div>
+{% endblock %}

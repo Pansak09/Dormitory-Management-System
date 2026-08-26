@@ -66,6 +66,10 @@
                class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-md hover:shadow-lg transition">
               🏘️ เพิ่มหลายห้อง
             </a>
+            <a href="{% url 'room_bulk_delete' %}?dorm_id={{ dorm.id }}"
+               class="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-md hover:shadow-lg transition">
+              🗑️ ลบหลายห้อง / ทั้งชั้น
+            </a>
           </div>
         {% endif %}
       </aside>
@@ -76,29 +80,47 @@
             🏠 รายการห้องทั้งหมด
           </h2>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
-            {% for r in rooms %}
-              <button
-                id="room-tile-{{ r.id }}"
-                class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
-                       flex items-center justify-center shadow-md border
-                       transition-transform hover:scale-[1.05]
-                       ring-2 ring-transparent hover:ring-indigo-400
-                       {% if r.status == 'OCCUPIED' %}
-                          bg-gradient-to-br from-green-500 to-emerald-600 border-green-600
-                       {% else %}
-                          bg-gradient-to-br from-red-500 to-rose-600 border-red-600
-                       {% endif %}"
-                hx-get="{% url 'room_detail_partial' r.id %}"
-                hx-target="#room-detail"
-                hx-swap="innerHTML"
-                title="ห้อง {{ r.room_number }}">
-                {{ r.room_number|default:"—" }}
-              </button>
-            {% empty %}
-              <p class="col-span-5 text-gray-500 text-center py-10">ยังไม่มีห้องในหอนี้ 😴</p>
-            {% endfor %}
-          </div>
+          {% regroup rooms by floor as floor_groups %}
+
+          {% if rooms %}
+            <div class="space-y-8">
+              {% for group in floor_groups %}
+                <div>
+                  <h3 class="text-sm font-bold text-indigo-600 mb-3 flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-xs">
+                      {{ group.grouper }}
+                    </span>
+                    ชั้น {{ group.grouper }}
+                    <span class="text-xs text-gray-400 font-normal">({{ group.list|length }} ห้อง)</span>
+                  </h3>
+
+                  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+                    {% for r in group.list %}
+                      <button
+                        id="room-tile-{{ r.id }}"
+                        class="aspect-square rounded-2xl text-white text-xl font-extrabold tracking-wide
+                               flex items-center justify-center shadow-md border
+                               transition-transform hover:scale-[1.05]
+                               ring-2 ring-transparent hover:ring-indigo-400
+                               {% if r.status == 'OCCUPIED' %}
+                                  bg-gradient-to-br from-green-500 to-emerald-600 border-green-600
+                               {% else %}
+                                  bg-gradient-to-br from-red-500 to-rose-600 border-red-600
+                               {% endif %}"
+                        hx-get="{% url 'room_detail_partial' r.id %}"
+                        hx-target="#room-detail"
+                        hx-swap="innerHTML"
+                        title="ห้อง {{ r.room_number }}">
+                        {{ r.room_number|default:"—" }}
+                      </button>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-gray-500 text-center py-10">ยังไม่มีห้องในหอนี้ 😴</p>
+          {% endif %}
         </div>
       </section>
     </div>

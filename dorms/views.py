@@ -6,6 +6,8 @@ from .forms import DormForm
 from .utils import is_staff_user  
 
 from django.db.models import Count, Q
+from django.utils import timezone
+from decimal import Decimal
 from django.shortcuts import render
 import json
 
@@ -23,7 +25,16 @@ def dorm_list(request):
 @login_required
 def dorm_detail(request, pk):
     dorm = get_object_or_404(Dorm, pk=pk)
-    rooms = Room.objects.filter(dorm=dorm).order_by("room_number")
+    rooms = list(Room.objects.filter(dorm=dorm))
+
+    def room_sort_key(r):
+        try:
+            number_key = int(r.room_number)
+        except (TypeError, ValueError):
+            number_key = r.room_number  # fallback: sort non-numeric text as-is
+        return (r.floor, number_key)
+
+    rooms.sort(key=room_sort_key)
     return render(request, "dorms/detail.html", {"dorm": dorm, "rooms": rooms})
 
 @user_passes_test(is_staff_user)
@@ -60,6 +71,8 @@ def dorm_delete(request, pk):
 @login_required
 @user_passes_test(_is_staff)
 def dashboard(request):
+    from billing.models import Bill
+
     dorm_id = request.GET.get("dorm")
     current_dorm = None
 
@@ -90,6 +103,23 @@ def dashboard(request):
 
     all_dorms = Dorm.objects.order_by("name").values("id", "name")
 
+    current_month = timezone.localdate().replace(day=1)
+    bill_qs = Bill.objects.select_related("room", "room__dorm").prefetch_related("items")
+    if dorm_id:
+        bill_qs = bill_qs.filter(room__dorm_id=dorm_id)
+    monthly_bills = list(bill_qs.filter(billing_month=current_month))
+    paid_bills = [bill for bill in monthly_bills if bill.status == Bill.PAID]
+    unpaid_bills = [bill for bill in monthly_bills if bill.status == Bill.OVERDUE]
+    pending_bills = [bill for bill in monthly_bills if bill.status == Bill.PENDING_VERIFICATION]
+    monthly_income = sum((bill.total_amount for bill in paid_bills), Decimal("0"))
+    outstanding_amount = sum((bill.total_amount for bill in unpaid_bills), Decimal("0"))
+    pending_amount = sum((bill.total_amount for bill in pending_bills), Decimal("0"))
+    recent_bills = list(bill_qs.order_by("-billing_month", "due_date")[:6])
+    recent_tenants = Room.objects.filter(tenant_user__isnull=False)
+    if dorm_id:
+        recent_tenants = recent_tenants.filter(dorm_id=dorm_id)
+    recent_tenants = recent_tenants.select_related("dorm", "tenant_user").order_by("dorm__name", "room_number")[:6]
+
     context = {
         "total_dorms": total_dorms,
         "total_rooms": total_rooms,
@@ -99,6 +129,16 @@ def dashboard(request):
         "by_dorm_counts": json.dumps(by_dorm_counts),
         "current_dorm": current_dorm,
         "all_dorms": list(all_dorms),
+        "current_month": current_month,
+        "monthly_income": monthly_income,
+        "outstanding_amount": outstanding_amount,
+        "pending_amount": pending_amount,
+        "count_paid_bills": len(paid_bills),
+        "count_unpaid_bills": len(unpaid_bills),
+        "count_pending_bills": len(pending_bills),
+        "count_tenants": room_qs.filter(tenant_user__isnull=False).count(),
+        "recent_bills": recent_bills,
+        "recent_tenants": recent_tenants,
     }
     return render(request, "dashboard/index.html", context)
 
